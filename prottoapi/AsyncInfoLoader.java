@@ -24,30 +24,41 @@ public class AsyncInfoLoader implements Runnable
 	{
 		// get Request headers
 		JSONObject responseHeaders = new JSONObject();		 // header json
-		Set<Entry<String, List<String>>> headers; 			 // raw headers
-		headers = request.conn.getHeaderFields().entrySet(); // set raw headers
-		for (Entry<String, List<String>> header : headers)   // iterate over raw header
-		{ 
-			String key   = "";          					 // key declaration
-			String value = "";								 // value declaration
-			key = (String)header.getKey();					 // key initialization
-			for (String s : header.getValue())
-			{
-				value = s.toString(); break;          		 // value initialization
-			}
-			if (value.toLowerCase() != "null")
-			{
-				try 
+		
+		try {
+			Set<Entry<String, List<String>>> headers; 			 // raw headers
+			headers = request.conn.getHeaderFields().entrySet(); // set raw headers
+			for (Entry<String, List<String>> header : headers)   // iterate over raw header
+			{ 
+				String key   = "";          					 // key declaration
+				String value = "";								 // value declaration
+				key = (String)header.getKey();					 // key initialization
+				for (String s : header.getValue())
 				{
-					// add header key + value to responseHeaders json object
-					responseHeaders.put(key, value);
+					value = s; break;          		 // value initialization
 				}
-				catch (Exception e) {}
+				if (value != null)
+				{
+					try 
+					{
+						// add header key + value to responseHeaders json object
+						responseHeaders.put(key, value);
+					}
+					catch (Exception e) {}
+				}
 			}
+		} catch (Exception e) {
+			System.err.println("Error fetching headers!");
+			e.printStackTrace();
 		}
 		// add extra headers
-		responseHeaders.put("Content-Type", request.conn.getContentType());
-		responseHeaders.put("Content-Length", request.conn.getContentLength());
+		try {
+			responseHeaders.put("Content-Type", request.conn.getContentType());
+			responseHeaders.put("Content-Length", request.conn.getContentLength());
+		} catch (Exception e) {
+			System.err.println("Error getting content info!");
+			e.printStackTrace();
+		}
 		request.response.setHeader(responseHeaders);
 	}
 	
@@ -75,10 +86,10 @@ public class AsyncInfoLoader implements Runnable
 		}
 		catch (Exception e)
 		{
-			System.out.print("Cannot Retrieve stream!: ");
-			System.out.print(request.response.status);
-			System.out.print(" ");
-			System.out.print(request.response.reason + "\n");
+			System.err.print("Cannot Retrieve stream!: ");
+			System.err.print(request.response.status);
+			System.err.print(" ");
+			System.err.print(request.response.reason + "\n");
 		}
 		
 		if (!canStream) // quit if stream cannot be processed
@@ -138,6 +149,7 @@ public class AsyncInfoLoader implements Runnable
 		}
 		catch (Exception e)
 		{
+			System.err.println("Error in AsyncInfoLoader.run()! ");
 			e.printStackTrace();
 		}
 		try { request.response.setReady(); } // set ready
