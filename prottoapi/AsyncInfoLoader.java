@@ -37,7 +37,7 @@ public class AsyncInfoLoader implements Runnable
 				{
 					value = s; break;          		 // value initialization
 				}
-				if (value != null)
+				if (value != null && key != null)
 				{
 					try 
 					{
@@ -56,7 +56,7 @@ public class AsyncInfoLoader implements Runnable
 			responseHeaders.put("Content-Type", request.conn.getContentType());
 			responseHeaders.put("Content-Length", request.conn.getContentLength());
 		} catch (Exception e) {
-			System.err.println("Error getting content info!");
+			System.err.println("ProttoApi: Error getting content info!");
 			e.printStackTrace();
 		}
 		request.response.setHeader(responseHeaders);
@@ -86,7 +86,7 @@ public class AsyncInfoLoader implements Runnable
 		}
 		catch (Exception e)
 		{
-			System.err.print("Cannot Retrieve stream!: ");
+			System.err.print("ProttoApi: Cannot Retrieve stream!: ");
 			System.err.print(request.response.status);
 			System.err.print(" ");
 			System.err.print(request.response.reason + "\n");
@@ -104,11 +104,10 @@ public class AsyncInfoLoader implements Runnable
 		
 		// read stream into byte array
 		byte[] buffer = new byte[AsyncRequestObject.BUFFER_SIZE];
-		int isDone     = 0;
-		while (isDone != -1) 
+		int n         = -1;
+		while ( (n = in.read(buffer)) != -1) 
 		{
-			isDone = in.read(buffer);
-			out.write(buffer);
+			out.write(buffer, 0, n);
 		}
 		
 		// get bytedata and string data
@@ -149,7 +148,7 @@ public class AsyncInfoLoader implements Runnable
 		}
 		catch (Exception e)
 		{
-			System.err.println("Error in AsyncInfoLoader.run()! ");
+			System.err.println("ProttoApi: Error in AsyncInfoLoader.run()! ");
 			e.printStackTrace();
 		}
 		try { request.response.setReady(); } // set ready
