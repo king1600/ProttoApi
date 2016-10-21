@@ -84,9 +84,7 @@ public class CleverbotApi {
 		
 		// get the main page to get a cookie
 		ResponseObject r = session.get(PROTOCOL + HOST);
-		if (r.onReady()) {
-			System.out.println("Headers: " + r.headers);
-		}
+		if (r.onReady()) {}
 	}
 	
 	public String ask(String question) throws Exception {
@@ -151,14 +149,10 @@ public class CleverbotApi {
 		enc_data += "&cb_settings_language=&cb_";
 		String digest_txt = enc_data.substring(0, 26);
 
-		
 		MessageDigest md = MessageDigest.getInstance("MD5");
 		byte[] digest_data = md.digest(digest_txt.getBytes(session.UTF_8));
 		String token = bytesToHex(digest_data);
 		data.put("icognocheck", token);
-		
-		System.out.println(data);
-		System.out.println(session.cookies);
 		
 		// POST data and return string response
 		ResponseObject response = session.post(API_URL, null, session.urlencode(data), headers);
