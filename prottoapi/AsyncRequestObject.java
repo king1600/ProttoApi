@@ -5,6 +5,7 @@ import java.util.List;
 import org.json.JSONObject;
 
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.HttpURLConnection;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -15,6 +16,7 @@ import java.io.UnsupportedEncodingException;
 
 public class AsyncRequestObject implements Callable<ResponseObject> {
 	// Connection objects
+	public CookieManager cm;
 	public HttpURLConnection conn;
 	public String url;
 	public static final int BUFFER_SIZE = 4096;
@@ -27,7 +29,7 @@ public class AsyncRequestObject implements Callable<ResponseObject> {
 	
 	// perform types of request
 	public AsyncRequestObject
-	(String _method, String _url, JSONObject _params, Object _form, JSONObject _headers)
+	(String _method, String _url, JSONObject _params, Object _form, JSONObject _headers, CookieManager cookies)
 	throws Exception
 	{
 		// initialize response object
@@ -40,7 +42,8 @@ public class AsyncRequestObject implements Callable<ResponseObject> {
 		}
 		
 		// create websocket connection
-		try { loadCookies(); } catch (Exception e) {}
+		cm = cookies;
+		try { loadCookies(); } catch (Exception e) { e.printStackTrace(); }
 		conn.setRequestProperty("Accept-Charset", UTF_8);
 		conn.setDoInput(true);
 		conn.setDoOutput(true);
@@ -168,16 +171,18 @@ public class AsyncRequestObject implements Callable<ResponseObject> {
 	// Load cookies into url connection
 	public void loadCookies() throws Exception 
 	{
-		// get all cookies on first request
-		conn = (HttpURLConnection)new URL(url).openConnection();
-		List<String> cookies = conn.getHeaderFields().get("Set-Cookie");
+		// initial connection to url
+		URL urlObject = new URL(url);
+		URLConnection urlConn = urlObject.openConnection();
+		urlConn.connect();
 		
-		// use same cookies on main request
-		conn = (HttpURLConnection)new URL(url).openConnection();
-		for (String cookie : cookies) 
-		{
-			conn.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
-		}
+		// store cookies and load cookies
+		cm.storeCookies(urlConn);
+		urlConn = urlObject.openConnection();
+		cm.setCookies(urlConn);
+		
+		// create http object
+		conn = (HttpURLConnection)urlConn;
 	}
 	
 	// Convert json object into url parameters
