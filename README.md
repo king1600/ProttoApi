@@ -22,7 +22,7 @@ String url = "https://httpbin.org/get";
 
 JSONObject parameters = new JSONObject();
 parameters.put("key", "value");
-parameters.put("key are", "auto url encoded");
+parameters.put("keys are", "auto url encoded");
 
 ResponseObject resp = session.get(url, parameters);
 
@@ -66,7 +66,7 @@ FileOutputStream out = new FileOutputStream(outPath);
 
 ResponseObject resp  = session.get(downloadUrl);
 
-if (resp.isReady()) {
+if (resp.onReady()) {
 	try {
 	
 		byte[] urlData = resp.bytes();
