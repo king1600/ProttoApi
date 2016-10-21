@@ -86,6 +86,7 @@ public class AsyncRequestObject implements Callable<ResponseObject> {
 		byte[] dataBytes = getFormData(formdata);
 		if (dataBytes != null) 
 		{
+			System.out.println("Get: writing data");
 			conn.setRequestProperty("Content-Length", String.valueOf(dataBytes.length));
 			try (OutputStream out = conn.getOutputStream()) 
 			{
@@ -116,6 +117,7 @@ public class AsyncRequestObject implements Callable<ResponseObject> {
 		if (dataBytes != null) 
 		{
 			conn.setRequestProperty("Content-Length", String.valueOf(dataBytes.length));
+			System.out.println("Writing: " + new String(dataBytes, UTF_8));
 			try (OutputStream out = conn.getOutputStream())
 			{
 				out.write(dataBytes);
@@ -148,7 +150,8 @@ public class AsyncRequestObject implements Callable<ResponseObject> {
 			{
 				conn.setRequestProperty("Content-Type", "application/json");
 				JSONObject json = (JSONObject)formdata;
-				data            = json.toString().getBytes(UTF_8);
+				String _data    = json.toString();
+				data            = _data.getBytes(UTF_8);
 			}
 			
 			// Using String
@@ -156,7 +159,8 @@ public class AsyncRequestObject implements Callable<ResponseObject> {
 			{
 				String charset = "application/x-www-form-urlencoded;charset=" + UTF_8;
 				conn.setRequestProperty("Content-Type", charset);
-				data = formdata.toString().getBytes(UTF_8);
+				String _data = formdata.toString();
+				data = _data.getBytes(UTF_8);
 			}
 		}
 		

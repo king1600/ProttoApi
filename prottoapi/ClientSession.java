@@ -1,5 +1,6 @@
 package prottoapi;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -9,6 +10,7 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 
 public class ClientSession {
@@ -47,6 +49,29 @@ public class ClientSession {
 	public String unquote(String data) throws UnsupportedEncodingException {
 		return URLDecoder.decode(data, UTF_8).toString();
 	}
+	
+	// url Query encode
+	public String urlencode(JSONObject data) throws Exception {
+		String query = "";
+		Iterator<?> keys = data.keys();
+		
+		// convert keys into string parameters
+		while (keys.hasNext()) 
+		{
+			String key = (String)keys.next();
+			if ( data.get(key) instanceof Object ) 
+			{
+				if (query.length() == 0) query += "?";
+				else query += "&";
+				query += key.replaceAll("&", "");
+				query += "=";
+				query += quote(data.get(key).toString());
+			}
+		}
+		
+		// return completed formed query
+		return query;
+	}
 		
 	
 	public ResponseObject get(Object...args) throws Exception
@@ -74,7 +99,7 @@ public class ClientSession {
 		Object formdata    = args.length > 2 ? args[2]             : null;
 		JSONObject headers = args.length > 3 ? (JSONObject)args[3] : null;
 		
-		// Perform request and get reponse
+		// Perform request and get response
 		Future<ResponseObject> response = pool.submit(
 				new AsyncRequestObject("post", url, params, formdata, headers, cookies)
 		);

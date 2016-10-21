@@ -68,12 +68,14 @@ public class AsyncInfoLoader implements Runnable
 		boolean canStream  = false;
 		InputStream stream = null;
 		String encoding    = request.conn.getContentEncoding();
+		System.out.println("encoding: " + encoding);
 		try
 		{
 			if (encoding != null)
 			{
 				if (encoding.contains("gzip"))
 				{
+					System.out.println("making gzip stream");
 					stream = new GZIPInputStream(request.conn.getInputStream());
 					canStream = true;
 				}
