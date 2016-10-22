@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.json.JSONObject;
 
+import prottoapi.AsyncRequestObject;
 import prottoapi.ClientSession;
 import prottoapi.ResponseObject;
 
@@ -155,7 +156,8 @@ public class CleverbotApi {
 		data.put("icognocheck", token);
 		
 		// POST data and return string response
-		ResponseObject response = session.post(API_URL, null, session.urlencode(data), headers);
+		String postdata = AsyncRequestObject.buildPostQuery(data).toString().substring(1);
+		ResponseObject response = session.post(API_URL, null, postdata, headers);
 		String responseString = "";
 		responseString = response.text();
 		

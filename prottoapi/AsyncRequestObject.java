@@ -5,7 +5,6 @@ import java.util.List;
 import org.json.JSONObject;
 
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.HttpURLConnection;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -19,19 +18,22 @@ public class AsyncRequestObject implements Callable<ResponseObject> {
 	public CookieManager cm;
 	public HttpURLConnection conn;
 	public String url;
-	public static final int BUFFER_SIZE = 4096;
+	public static final int BUFFER_SIZE = 32768;
 	
 	// Constant Charset
-	public final String UTF_8 = StandardCharsets.UTF_8.toString();
+	public static final String UTF_8 = StandardCharsets.UTF_8.toString();
 	
 	// final Response object
 	public ResponseObject response;
 	
 	// perform types of request
 	public AsyncRequestObject
-	(String _method, String _url, JSONObject _params, Object _form, JSONObject _headers, CookieManager cookies)
+	(CookieManager _cm, String _method, String _url, JSONObject _params, Object _form, JSONObject _headers)
 	throws Exception
 	{
+		// set called clientsession
+		cm = _cm;
+		
 		// initialize response object
 		response = new ResponseObject();
 		
@@ -42,9 +44,8 @@ public class AsyncRequestObject implements Callable<ResponseObject> {
 		}
 		
 		// create websocket connection
-		cm = cookies;
-		try { loadCookies(); } catch (Exception e) { e.printStackTrace(); }
-		conn.setRequestProperty("Accept-Charset", UTF_8);
+		try { loadCookies(); } catch (Exception e) {}
+		//conn.setRequestProperty("Accept-Charset", UTF_8);
 		conn.setDoInput(true);
 		conn.setDoOutput(true);
 		
@@ -56,7 +57,7 @@ public class AsyncRequestObject implements Callable<ResponseObject> {
 			{
 				String key   = (String)keys.next();
 				String value = new String("");
-				if (_headers.get(key) instanceof Object) 
+				if (_headers.get(key) != null) 
 				{
 					value = _headers.get(key).toString();
 					conn.setRequestProperty(key, value);
@@ -148,8 +149,7 @@ public class AsyncRequestObject implements Callable<ResponseObject> {
 			{
 				conn.setRequestProperty("Content-Type", "application/json");
 				JSONObject json = (JSONObject)formdata;
-				String _data    = json.toString();
-				data            = _data.getBytes(UTF_8);
+				data            = json.toString().getBytes(UTF_8);
 			}
 			
 			// Using String
@@ -157,8 +157,7 @@ public class AsyncRequestObject implements Callable<ResponseObject> {
 			{
 				String charset = "application/x-www-form-urlencoded;charset=" + UTF_8;
 				conn.setRequestProperty("Content-Type", charset);
-				String _data = formdata.toString();
-				data = _data.getBytes(UTF_8);
+				data = formdata.toString().getBytes(UTF_8);
 			}
 		}
 		
@@ -173,22 +172,16 @@ public class AsyncRequestObject implements Callable<ResponseObject> {
 	// Load cookies into url connection
 	public void loadCookies() throws Exception 
 	{
-		// initial connection to url
-		URL urlObject = new URL(url);
-		URLConnection urlConn = urlObject.openConnection();
-		urlConn.connect();
-		
-		// store cookies and load cookies
-		cm.storeCookies(urlConn);
-		urlConn = urlObject.openConnection();
-		cm.setCookies(urlConn);
-		
-		// create http object
-		conn = (HttpURLConnection)urlConn;
+		// get all cookies on first request
+		conn = (HttpURLConnection)new URL(url).openConnection();
+		conn.connect();
+		cm.storeCookies(conn);
+		conn = (HttpURLConnection)new URL(url).openConnection();
+		cm.setCookies(conn);
 	}
 	
 	// Convert json object into url parameters
-	public String buildPostQuery(JSONObject json) throws Exception 
+	public static String buildPostQuery(JSONObject json) throws Exception 
 	{
 		String postQuery = "";
 		Iterator<?> keys = json.keys();
@@ -197,7 +190,7 @@ public class AsyncRequestObject implements Callable<ResponseObject> {
 		while (keys.hasNext()) 
 		{
 			String key = (String)keys.next();
-			if ( json.get(key) instanceof Object ) 
+			if (json.get(key) != null) 
 			{
 				if (postQuery.length() == 0) postQuery += "?";
 				else postQuery += "&";
@@ -212,7 +205,7 @@ public class AsyncRequestObject implements Callable<ResponseObject> {
 	}
 	
 	// URL Quote a string
-	public String quote(String data) throws UnsupportedEncodingException {
+	public static String quote(String data) throws UnsupportedEncodingException {
 		return URLEncoder.encode(data, UTF_8).toString();
 	}
 		

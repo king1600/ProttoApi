@@ -5,6 +5,7 @@ import org.json.JSONObject;
 public class ResponseObject {
 
 	// class info
+	public String url;
 	public JSONObject headers;
 	public Integer status;
 	public String reason;
@@ -80,21 +81,19 @@ public class ResponseObject {
 		this.headers = header;
 	}
 	
-	// set Json info
-	public void setJson() throws Exception {
-		// set json
+// set Json info
+	public void setJson() throws Exception
+	{
+// set json
 		String contentType = (String)headers.get("Content-Type");
-		if (contentType.toLowerCase().contains("application/json") ||
-		   (contentData.startsWith("{") && contentData.endsWith("}")))
+		if(contentType.contains("application/json"))
 		{
-			try {
+			if(contentData.startsWith("{"))
+			{
 				jsonData = new JSONObject(contentData);
-			} catch (Exception e) {
-				jsonData = null;
 			}
 		}
-		
-		// json() can now return
+// json() or jsonArray() can now return
 		this.hasJson = true;
 		synchronized(jsonLock)
 		{
