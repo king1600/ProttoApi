@@ -2,8 +2,9 @@
 Java Semi-Asynchronous HTTP GET & POST minimal library
 
 ### Requirements:
-1. [jarfile](https://github.com/stleary/JSON-java)
-2. Gradle:```compile 'org.json:json:20150729'```
+* org.json:
+	1. [jarfile](https://github.com/stleary/JSON-java)
+	2. Gradle:```compile 'org.json:json:20150729'```
 
 
 ### Examples
