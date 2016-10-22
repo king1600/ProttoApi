@@ -86,7 +86,6 @@ public class AsyncRequestObject implements Callable<ResponseObject> {
 		byte[] dataBytes = getFormData(formdata);
 		if (dataBytes != null) 
 		{
-			System.out.println("Get: writing data");
 			conn.setRequestProperty("Content-Length", String.valueOf(dataBytes.length));
 			try (OutputStream out = conn.getOutputStream()) 
 			{
@@ -117,7 +116,6 @@ public class AsyncRequestObject implements Callable<ResponseObject> {
 		if (dataBytes != null) 
 		{
 			conn.setRequestProperty("Content-Length", String.valueOf(dataBytes.length));
-			System.out.println("Writing: " + new String(dataBytes, UTF_8));
 			try (OutputStream out = conn.getOutputStream())
 			{
 				out.write(dataBytes);
