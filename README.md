@@ -1,6 +1,11 @@
 # ProttoApi
 Java Semi-Asynchronous HTTP GET & POST minimal library
 
+### Requirements:
+1. [org.json - jar + src]("https://github.com/stleary/JSON-java")
+2. Grades:```compile 'org.json:json:20150729'```
+
+
 ### Examples
 ```java
 import java.io.*;
