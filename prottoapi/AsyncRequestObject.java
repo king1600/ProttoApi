@@ -15,7 +15,6 @@ import java.io.UnsupportedEncodingException;
 
 public class AsyncRequestObject implements Callable<ResponseObject> {
 	// Connection objects
-	public CookieManager cm;
 	public HttpURLConnection conn;
 	public String url;
 	public static final int BUFFER_SIZE = 32768;
@@ -28,12 +27,9 @@ public class AsyncRequestObject implements Callable<ResponseObject> {
 	
 	// perform types of request
 	public AsyncRequestObject
-	(CookieManager _cm, String _method, String _url, JSONObject _params, Object _form, JSONObject _headers)
+	(String _method, String _url, JSONObject _params, Object _form, JSONObject _headers)
 	throws Exception
-	{
-		// set called clientsession
-		cm = _cm;
-		
+	{	
 		// initialize response object
 		response = new ResponseObject();
 		
@@ -43,9 +39,8 @@ public class AsyncRequestObject implements Callable<ResponseObject> {
 			url += buildPostQuery(_params);
 		}
 		
-		// create websocket connection
-		try { loadCookies(); } catch (Exception e) {}
 		//conn.setRequestProperty("Accept-Charset", UTF_8);
+		conn = (HttpURLConnection)new URL(url).openConnection();
 		conn.setDoInput(true);
 		conn.setDoOutput(true);
 		
@@ -168,17 +163,6 @@ public class AsyncRequestObject implements Callable<ResponseObject> {
 	/****************************************/
 	
 	/******** Connection & Parse Functions (begin) ***********/
-	
-	// Load cookies into url connection
-	public void loadCookies() throws Exception 
-	{
-		// get all cookies on first request
-		conn = (HttpURLConnection)new URL(url).openConnection();
-		conn.connect();
-		cm.storeCookies(conn);
-		conn = (HttpURLConnection)new URL(url).openConnection();
-		cm.setCookies(conn);
-	}
 	
 	// Convert json object into url parameters
 	public static String buildPostQuery(JSONObject json) throws Exception 

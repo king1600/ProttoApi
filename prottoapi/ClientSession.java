@@ -4,6 +4,9 @@ import org.json.JSONObject;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.io.UnsupportedEncodingException;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -13,7 +16,6 @@ import java.util.concurrent.ExecutorService;
 
 public class ClientSession {
 	private ExecutorService pool;
-	public CookieManager cookies;
 	public final Charset UTF_8_CHARSET = StandardCharsets.UTF_8;
 	public final String UTF_8          = UTF_8_CHARSET.toString();
 	
@@ -22,9 +24,7 @@ public class ClientSession {
 		// create thread pool
 		pool = Executors.newFixedThreadPool(workerNum);
 		
-		// use cookie manager
-		cookies = new CookieManager();
-		//CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ALL));
+		CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ALL));
 	}
 	
 	// close execution pool
@@ -60,7 +60,7 @@ public class ClientSession {
 		
 		// Perform request and get reponse
 		Future<ResponseObject> response = pool.submit(
-				new AsyncRequestObject(cookies, "get", url, params, formdata, headers)
+				new AsyncRequestObject("get", url, params, formdata, headers)
 		);
 		
 		// return Response object
@@ -77,7 +77,7 @@ public class ClientSession {
 		
 		// Perform request and get reponse
 		Future<ResponseObject> response = pool.submit(
-				new AsyncRequestObject(cookies, "post", url, params, formdata, headers)
+				new AsyncRequestObject("post", url, params, formdata, headers)
 		);
 		
 		// return Response object
