@@ -81,23 +81,28 @@ public class ResponseObject {
 		this.headers = header;
 	}
 	
-// set Json info
+	// set Json info
 	public void setJson() throws Exception
 	{
-// set json
-		String contentType = (String)headers.get("Content-Type");
-		if(contentType.contains("application/json"))
-		{
-			if(contentData.startsWith("{"))
+		try {
+			// set json
+			String contentType = (String)headers.get("Content-Type");
+			if(contentType.contains("application/json"))
 			{
-				jsonData = new JSONObject(contentData);
+				if(contentData.startsWith("{"))
+				{
+					jsonData = new JSONObject(contentData);
+				}
 			}
-		}
-// json() or jsonArray() can now return
-		this.hasJson = true;
-		synchronized(jsonLock)
-		{
-			jsonLock.notifyAll();
+			// json() or jsonArray() can now return
+			this.hasJson = true;
+			synchronized(jsonLock)
+			{
+				jsonLock.notifyAll();
+			}
+		} catch (Exception e) {
+			System.err.println("Error on Setting JSON: ");
+			e.printStackTrace();
 		}
 	}
 	

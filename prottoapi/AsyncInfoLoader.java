@@ -93,6 +93,9 @@ public class AsyncInfoLoader implements Runnable
 		
 		if (!canStream) // quit if stream cannot be processed
 		{
+			request.response.setData(null);
+			request.response.setText(null);
+			request.response.setJson();
 			request.response.setReady();
 			return;
 		}
