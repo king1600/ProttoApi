@@ -94,15 +94,14 @@ public class ResponseObject {
 					jsonData = new JSONObject(contentData);
 				}
 			}
-			// json() or jsonArray() can now return
-			this.hasJson = true;
-			synchronized(jsonLock)
-			{
-				jsonLock.notifyAll();
-			}
 		} catch (Exception e) {
 			System.err.println("Error on Setting JSON: ");
 			e.printStackTrace();
+		}
+		this.hasJson = true;
+		synchronized(jsonLock)
+		{
+			jsonLock.notifyAll();
 		}
 	}
 	
